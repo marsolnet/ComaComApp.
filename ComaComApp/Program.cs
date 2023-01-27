@@ -3,8 +3,7 @@
 class Program
 {
     public static void Main(string[] args)
-    {
-       
+    { 
         try
         {
             var filePathDirectory = @"c:\storage";

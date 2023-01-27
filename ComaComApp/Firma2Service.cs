@@ -32,11 +32,9 @@ namespace ComaComApp
             if (values[3] == "WE")
             {
                 workDay.GodzinaWejscia = TimeSpan.Parse(values[2]);
-                //workDay.GodzinaWyjscia = null;
             }
             else
             {
-                // workDay.GodzinaWejscia = null;
                 workDay.GodzinaWyjscia = TimeSpan.Parse(values[2]);
             }
 

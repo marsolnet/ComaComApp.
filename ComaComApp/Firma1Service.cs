@@ -3,7 +3,6 @@ namespace ComaComApp
 {
     public class Firma1Service
     {
-
         public List<DzienPracy> FirmaList(string filePath)
         {
 
