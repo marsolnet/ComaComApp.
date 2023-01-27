@@ -1,66 +1,46 @@
-﻿using ComaComApp;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace ComaComApp_
+﻿
+namespace ComaComApp
 {
     public class Firma2Service
     {
         public List<DzienPracy> FirmaList(string filePath)
         {
-            List<DzienPracy> workDayList = new List<DzienPracy>();
-            List<Firma2> firmaList = new List<Firma2>();
-            StreamReader reader = null;
-            if (File.Exists(filePath))
+
+            List<DzienPracy> values = File.ReadAllLines(filePath)
+                                               .Select(v => FromCsv(v))
+                                               .ToList();
+            var t = values;
+            var workList = values.GroupBy(x => new { x.KodPracownika, x.Data }).Select(x => new DzienPracy
             {
-                reader = new StreamReader(File.OpenRead(filePath));
-                while (!reader.EndOfStream)
-                {
-                    var line = reader.ReadLine();
-                    var values = line.Split(';');
+                KodPracownika = x.FirstOrDefault().KodPracownika,
+                Data = x.FirstOrDefault().Data,
+                GodzinaWejscia = x.Where(r => !string.IsNullOrEmpty(r.GodzinaWejscia.ToString())).Select(r => r.GodzinaWejscia).FirstOrDefault(),
+                GodzinaWyjscia = x.Where(r => !string.IsNullOrEmpty(r.GodzinaWyjscia.ToString())).Select(r => r.GodzinaWyjscia).FirstOrDefault(),
+            }).ToList();
 
-                    Firma2 firma = new Firma2();
-                    firma.EmployeeCode = Convert.ToString(values[0]);
-                    firma.Date = Convert.ToDateTime(values[1]);
-                    if (values[2] != "") { firma.Time = TimeSpan.Parse(values[2]); }
-                    firma.InOut = Convert.ToString(values[3]);
-                    firmaList.Add(firma);
-                }
+            return workList;
+        }
 
-                List<Firma2> firmaNoDupesList = firmaList.DistinctBy(p => new { p.EmployeeCode, p.Date, p.InOut }).ToList();
-                List<Firma2> employeeNoDupesList = firmaList.DistinctBy(p => new { p.EmployeeCode, p.Date }).ToList();
+        public static DzienPracy FromCsv(string csvLine)
+        {
+            string[] values = csvLine.Split(';');
 
-                foreach (var item in employeeNoDupesList)
-                {
-                    DzienPracy workDay = new DzienPracy();
-                    workDay.KodPracownika = item.EmployeeCode;
-                    workDay.Data = item.Date;
-                    var godzinaWejscia = firmaNoDupesList.FirstOrDefault(x => x.EmployeeCode == item.EmployeeCode && x.Date == item.Date && x.InOut == "WE");
+            DzienPracy workDay = new DzienPracy();
+            workDay.KodPracownika = Convert.ToString(values[0]);
+            workDay.Data = Convert.ToDateTime(values[1]);
 
-                    if (godzinaWejscia != null)
-                    {
-                        workDay.GodzinaWejscia = godzinaWejscia.Time;
-                    }
-
-                    var godzinaWyjscia = firmaNoDupesList.FirstOrDefault(x => x.EmployeeCode == item.EmployeeCode && x.Date == item.Date && x.InOut == "WY");
-
-                    if (godzinaWyjscia != null)
-                    {
-                        workDay.GodzinaWyjscia = godzinaWyjscia.Time;
-                    }
-
-                    workDayList.Add(workDay);
-                }
+            if (values[3] == "WE")
+            {
+                workDay.GodzinaWejscia = TimeSpan.Parse(values[2]);
+                //workDay.GodzinaWyjscia = null;
             }
             else
             {
-                Console.WriteLine("File doesn't exist");
+                // workDay.GodzinaWejscia = null;
+                workDay.GodzinaWyjscia = TimeSpan.Parse(values[2]);
             }
 
-            return workDayList;
+            return workDay;
         }
     }
 }

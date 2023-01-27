@@ -4,13 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ComaComApp_
+namespace ComaComApp
 {
     public class DzienPracy
     {
         public string KodPracownika { get; set; }
         public DateTime Data { get; set; }
-        public TimeSpan GodzinaWejscia { get; set; }
-        public TimeSpan GodzinaWyjscia { get; set; }
+        public TimeSpan? GodzinaWejscia { get; set; }
+        public TimeSpan? GodzinaWyjscia { get; set; }
     }
 }
